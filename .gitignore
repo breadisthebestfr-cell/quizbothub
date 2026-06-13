@@ -1,5 +1,6 @@
 .env
 .cache
+~/.lyricterm/
 __pycache__/
 *.pyc
 *.pyo

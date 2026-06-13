@@ -23,13 +23,17 @@ class AppWindow:
         self.canvas = CRTCanvas(self.root)
         self.canvas.pack(fill="both", expand=True)
 
-    # Delegates
     def set_track(self, artist, title, duration_ms, progress_ms):
+        # U3: reflect track in window title so it's visible in the taskbar
+        self.root.title(f"LYRICTERM  —  {artist}  —  {title}")
         self.canvas.set_track(artist, title)
         self.canvas.set_progress(progress_ms, duration_ms)
 
-    def set_lyrics(self, lyrics):
-        self.canvas.set_lyrics(lyrics)
+    def set_fetching(self):
+        self.canvas.set_fetching()
+
+    def set_lyrics(self, result: tuple):
+        self.canvas.set_lyrics(result)
 
     def set_status(self, status):
         self.canvas.set_status(status)
