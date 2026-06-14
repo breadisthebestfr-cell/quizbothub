@@ -7,7 +7,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from dotenv import load_dotenv
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# When frozen by PyInstaller, .env must sit next to the .exe
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 from spotify_client import SpotifyClient
@@ -38,7 +42,7 @@ def main():
         _generation[0] += 1
         gen = _generation[0]
         window.set_track(artist, title, duration_ms, progress_ms)
-        window.set_fetching()  # U1: immediately show "FETCHING LYRICS..."
+        window.set_fetching()
         threading.Thread(
             target=_load_lyrics,
             args=(artist, title, gen),
@@ -46,7 +50,7 @@ def main():
         ).start()
 
     def _load_lyrics(artist, title, gen):
-        result = fetch_lyrics(artist, title)  # returns ("ok", text) | ("not_found", None) | ("error", None)
+        result = fetch_lyrics(artist, title)
         if gen == _generation[0]:
             window.root.after(0, lambda: window.set_lyrics(result))
 

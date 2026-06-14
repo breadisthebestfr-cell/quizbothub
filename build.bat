@@ -2,18 +2,44 @@
 echo [LYRICTERM] Installing dependencies...
 pip install -r requirements.txt
 pip install pyinstaller Pillow
+if errorlevel 1 (
+    echo ERROR: pip install failed. Is Python in your PATH?
+    pause & exit /b 1
+)
 
 echo [LYRICTERM] Generating icon...
 python assets\make_icon.py
 
 echo [LYRICTERM] Building executable...
 if exist assets\icon.ico (
-    pyinstaller --onefile --windowed --name lyricterm --icon assets\icon.ico --add-data "assets;assets" src\main.py
+    set ICON_FLAG=--icon assets\icon.ico
 ) else (
-    pyinstaller --onefile --windowed --name lyricterm --add-data "assets;assets" src\main.py
+    set ICON_FLAG=
 )
 
-echo.
-echo [LYRICTERM] Done! Find your exe at: dist\lyricterm.exe
-echo Remember to copy your .env file next to the exe before running it.
+pyinstaller ^
+    --onefile ^
+    --windowed ^
+    --name lyricterm ^
+    --paths src ^
+    --hidden-import spotipy ^
+    --hidden-import spotipy.oauth2 ^
+    --hidden-import dotenv ^
+    --collect-all spotipy ^
+    --add-data "assets;assets" ^
+    %ICON_FLAG% ^
+    src\main.py
+
+if exist dist\lyricterm.exe (
+    echo.
+    echo [LYRICTERM] Build successful!
+    echo Exe is at: dist\lyricterm.exe
+    echo.
+    echo IMPORTANT: copy your .env file into the dist\ folder before running.
+    echo            The exe looks for .env next to itself.
+) else (
+    echo.
+    echo [LYRICTERM] Build FAILED - dist\lyricterm.exe was not created.
+    echo Scroll up to find the error, or remove --windowed and re-run to see crash details.
+)
 pause
