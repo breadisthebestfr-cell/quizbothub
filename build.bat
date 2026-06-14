@@ -17,7 +17,7 @@ if exist assets\icon.ico (
     set ICON_FLAG=
 )
 
-pyinstaller ^
+python -m PyInstaller ^
     --onefile ^
     --windowed ^
     --name lyricterm ^
@@ -32,14 +32,15 @@ pyinstaller ^
 
 if exist dist\lyricterm.exe (
     echo.
-    echo [LYRICTERM] Build successful!
-    echo Exe is at: dist\lyricterm.exe
+    echo [LYRICTERM] Build successful! Exe is at: dist\lyricterm.exe
     echo.
-    echo IMPORTANT: copy your .env file into the dist\ folder before running.
-    echo            The exe looks for .env next to itself.
+    echo Copying your credentials into dist\ ...
+    if exist .env copy .env dist\.env >nul
+    if exist lyricterm.env copy lyricterm.env dist\lyricterm.env >nul
+    echo Done. Run dist\lyricterm.exe to launch.
 ) else (
     echo.
     echo [LYRICTERM] Build FAILED - dist\lyricterm.exe was not created.
-    echo Scroll up to find the error, or remove --windowed and re-run to see crash details.
+    echo Scroll up to find the error.
 )
 pause

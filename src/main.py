@@ -7,12 +7,18 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from dotenv import load_dotenv
 
-# When frozen by PyInstaller, .env must sit next to the .exe
+# When frozen by PyInstaller, config files sit next to the .exe
 if getattr(sys, "frozen", False):
     BASE_DIR = os.path.dirname(sys.executable)
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+# Accept .env or lyricterm.env (Windows makes .env tricky to create)
+for _cfg in (".env", "lyricterm.env"):
+    _path = os.path.join(BASE_DIR, _cfg)
+    if os.path.exists(_path):
+        load_dotenv(_path)
+        break
 
 from spotify_client import SpotifyClient
 from lyrics_client  import fetch_lyrics
@@ -27,15 +33,13 @@ def main():
     if not client_id or not client_secret:
         print(
             "ERROR: Missing Spotify credentials.\n"
-            "Copy .env.example to .env and fill in your Client ID and Secret.\n"
+            "Run setup.bat to configure your Spotify credentials.\n"
             "See README.md for setup instructions."
         )
         sys.exit(1)
 
     window = AppWindow()
 
-    # B2: generation counter — incremented on every track change so stale
-    # lyric fetches (from rapid skipping) don't overwrite newer results.
     _generation = [0]
 
     def on_track_change(artist, title, duration_ms, progress_ms):
